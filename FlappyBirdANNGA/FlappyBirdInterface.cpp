@@ -1,6 +1,32 @@
 #include "FlappyBirdInterface.h"
 
 namespace FlappyBirdInterce {
+
+    void drawNN(sf::RenderWindow *window, NeuralNetwork::NeuralNetwork *nn, Array::Array2D input, float position_x, float position_y, float width, float height) {
+        float minor_screen_size = (width < height ? width : height);
+        float neuron_radius = minor_screen_size / (nn->n_layers * 2);
+        void* layer;
+
+        sf::CircleShape neuron_shape(neuron_radius);
+        neuron_shape.setFillColor(sf::Color::White);
+
+        for (int i_layer = 0; i_layer < nn->n_layers; i_layer++) {
+
+            layer = nn->layers[i_layer]->data;
+            switch (nn->layers[i_layer]->type) {
+            case Layer::dense:
+                input.overwrite(((Layer::Dense*)layer)->predict(input));
+            }
+
+            for (int i_input = 0; i_input < input.width; i_input++) {
+                neuron_shape.setPosition(sf::Vector2f(position_x + neuron_radius*2*i_layer,
+                                                      position_y + neuron_radius*2*i_input));
+                window->draw(neuron_shape);
+            }
+        }
+        input.destroyData();
+    }
+
 	void drawInterfaceNN(NeuralNetwork::NeuralNetwork* nn) {
         // Setting the bird radius.
         float lower_resolution = (RESOLUTION_X > RESOLUTION_Y ? RESOLUTION_X : RESOLUTION_Y);
@@ -201,6 +227,9 @@ namespace FlappyBirdInterce {
                         if (((float**)a.data)[0][0] > 0.5) {
                             i_bird->flap(BIRD_FLAP_ACCELERATION);
                         }
+
+                        // drawNN(window, nn, 
+
                         i_population++;
                     }
                 }

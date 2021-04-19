@@ -69,12 +69,12 @@ void populationFitnessFunction(GeneticAlgorithm::GeneticAlgorithm* ga) {
 
 int main() {
 	srand(time(NULL));
-	AnnGA::AnnGA annga(100, createIndividual, fitnessFunction);
+	AnnGA::AnnGA annga(200, createIndividual, fitnessFunction);
 	annga.runGen();
 	annga.promptPopulation();
-	annga.run(100, 50, 25000);
+	annga.run(50, 75, 25000);
 	for (int i = 0; i < 50; i++) {
-		annga.run(1, 50);
+		annga.run(1, 200);
 		// FlappyBirdInterce::drawInterfaceNN(annga.getBest());
 		FlappyBirdInterce::drawInterfaceGA(annga.getGA());
 	}
