@@ -13,14 +13,13 @@
 
 #define RESOLUTION_X 800
 #define RESOLUTION_Y 600
-#define GRAVITY_ACCELERATION 1
-#define TUNNEL_VELOCITY -5
-#define BIRD_FLAP_ACCELERATION 10
+#define GRAVITY_ACCELERATION 0.5
+#define TUNNEL_VELOCITY -2.5
+#define BIRD_FLAP_ACCELERATION 7
 #define BIRD_MAX_SPEED 17
 #define TICKETS 30
 
 namespace FlappyBirdInterce {
-	void drawInterfaceNN(NeuralNetwork::NeuralNetwork* nn);
 	void drawInterfaceGA(GeneticAlgorithm::GeneticAlgorithm* ga);
 }
 
