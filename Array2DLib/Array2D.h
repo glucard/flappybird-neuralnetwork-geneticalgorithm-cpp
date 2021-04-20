@@ -29,6 +29,8 @@ namespace Array {
 		void displayData();
 		void destroyData();
 		void overwrite(Array2D array2d);
+		float maxf();
+		float absf();
 		Array2D crossover(Array2D other_array2d, int cut_point);
 		void applyFunction(void (*function)(void*));
 		Array2D hadamardProduct(Array2D other_array2d);

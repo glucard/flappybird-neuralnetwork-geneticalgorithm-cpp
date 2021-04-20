@@ -91,6 +91,33 @@ namespace Array {
 		data = array2d.data;
 	}
 
+	float Array2D::maxf() {
+		if (type != FLOAT_TYPE) throw "Invalid array data type.";
+
+		float** float_data = (float**)data;
+		float max = float_data[0][0];
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (float_data[i][j] > max) max = float_data[i][j];
+			}
+		}
+		
+		return max;
+	}
+
+	float Array2D::absf() {
+		if (type != FLOAT_TYPE) throw "Invalid array data type.";
+
+		float** float_data = (float**)data;
+		float abs = float_data[0][0];
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if (pow(float_data[i][j],2) > pow(abs,2)) abs = float_data[i][j];
+			}
+		}
+
+		return abs;
+	}
 
 	Array2D Array2D::crossover(Array2D other_array2d, int cut_point) {
 		try {
