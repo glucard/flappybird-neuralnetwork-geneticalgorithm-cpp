@@ -3,11 +3,12 @@
 #include "FlappyBirdLib/FlappyBird.h"
 #include "FlappyBirdInterface.h"
 
+#define FITNESS_LIMIT 25000
+
 void* createIndividual() {
 	int input_shape[2] = { 1,3 };
 	NeuralNetwork::NeuralNetwork* nn = new NeuralNetwork::NeuralNetwork(input_shape);
-	nn->addLayerDense(8, ActivationFunction::ReLU);
-	nn->addLayerDense(8, ActivationFunction::ReLU);
+	nn->addLayerDense(4, ActivationFunction::ReLU);
 	nn->addLayerDense(1, ActivationFunction::sigmoid);
 
 	return nn;
@@ -30,51 +31,21 @@ float fitnessFunction(void* data) {
 				fitness--;
 			}
 			if (game.isOnTunnel(*game.bird_list.begin())) fitness++;
+			if (fitness > FITNESS_LIMIT) break;
 		}
 		game.restart();
 	}
 	return fitness;
 }
 
-void populationFitnessFunction(GeneticAlgorithm::GeneticAlgorithm* ga) {
-	GeneticAlgorithm::Individual** population = ga->getPopulation();
-	NeuralNetwork::NeuralNetwork* nn;
-	int population_size, i_population;
-	population_size = ga->getPopulationSize();
-	FlappyBird game(population_size, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, RESOLUTION_Y / 30, RESOLUTION_X / 10,
-		RESOLUTION_Y / 2, 0, 0);
-
-	for (int i = 0; i < population_size; i++) {
-		ga->getPopulation()[i]->setFitness(0);
-	}
-	Array::Array2D a(FLOAT_TYPE, 0, 0, NULL);
-	std::list <Bird> ::iterator i_bird;
-	for (int i = 0; i < 1; i++) {
-		while (game.update(GRAVITY_ACCELERATION, BIRD_MAX_SPEED)) {
-			i_population = 0;
-			for (i_bird = game.bird_list.begin(); i_bird != game.bird_list.end(); ++i_bird) {
-				nn = (NeuralNetwork::NeuralNetwork*)population[i_population]->getData();
-				a.overwrite(game.getIaInput(*i_bird));
-				a.overwrite(nn->predict(a));
-				if (((float**)a.data)[0][0] > 0.5) {
-					i_bird->flap(BIRD_FLAP_ACCELERATION);
-					population[i_population]->addFitness(-1.f);
-				}
-				if (game.isOnTunnel(*i_bird)) population[i_population]->addFitness(1.f);
-			}
-		}
-		game.restart();
-	}
-}
-
 int main() {
 	srand(time(NULL));
-	AnnGA::AnnGA annga(200, createIndividual, fitnessFunction);
+	AnnGA::AnnGA annga(500, createIndividual, fitnessFunction);
 	annga.runGen();
 	annga.promptPopulation();
-	annga.run(50, 75, 25000);
+	annga.run(100, 75, FITNESS_LIMIT);
 	for (int i = 0; i < 50; i++) {
-		annga.run(1, 200);
+		annga.run(1, 50);
 		// FlappyBirdInterce::drawInterfaceNN(annga.getBest());
 		FlappyBirdInterce::drawInterfaceGA(annga.getGA());
 	}
