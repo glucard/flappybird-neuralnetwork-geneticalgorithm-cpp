@@ -27,7 +27,8 @@ namespace GeneticAlgorithm {
 	}
 
 	GeneticAlgorithm::GeneticAlgorithm(int population_size, void* createIndividual(), void destroyIndividual(void*),
-		float fitnessFunction(void*)) {
+	float fitnessFunction(void*)) {
+		generation = 0;
 		create_individual_function = createIndividual;
 		destroy_individual_function = destroyIndividual;
 		void* individual_data;
@@ -45,6 +46,11 @@ namespace GeneticAlgorithm {
 			delete population[i];
 		}
 		free(population);
+	}
+	void GeneticAlgorithm::eraseFitness() {
+		for (int i = 0; i < n_population; i++) {
+			population[i]->setFitness(0);
+		}
 	}
 	void GeneticAlgorithm::orderByFitnessQuickSort(int began, int end) {
 		int i, j;
@@ -73,7 +79,7 @@ namespace GeneticAlgorithm {
 	Individual* GeneticAlgorithm::tournament(int n_candidates) {
 		int total_points = 0;
 		for (int i = 1; i <= n_candidates; i++) total_points += i;
-		int point_selected = rand() % total_points;
+		int point_selected = rand() % total_points + 1;
 		int i;
 		for (i = n_candidates; point_selected - i > 0; i--) point_selected -= i;
 		return population[n_candidates - i];
@@ -94,12 +100,12 @@ namespace GeneticAlgorithm {
 		for (int i = n_population - 1; i >= n_reprocreate; i--) {
 			father = tournament(n_reprocreate);
 			mother = tournament(n_reprocreate);
-			while (mother == father) mother = tournament(n_population);
+			while (mother == father) mother = tournament(n_reprocreate);
 			son_data = createSonFunction(father->getData(), mother->getData());
 			population[i]->setData(destroy_individual_function, son_data);
 			population[i]->setFitness(0);
 		}
-
+		generation++;
 	}
 	void GeneticAlgorithm::run(int generations, int n_reprocreation, void* createSonFunction(void*, void*), int max_fitness) {
 		for (int i = 0; i < generations; i++) {
@@ -125,6 +131,9 @@ namespace GeneticAlgorithm {
 	void* GeneticAlgorithm::getBest() {
 		orderByFitness();
 		return population[0]->getData();
+	}
+	int GeneticAlgorithm::getGeneration() {
+		return generation;
 	}
 	int GeneticAlgorithm::getPopulationSize() {
 		return n_population;

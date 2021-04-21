@@ -20,6 +20,7 @@ namespace GeneticAlgorithm {
 		void addFitness(float _fitness);
 	};
 	class GeneticAlgorithm {
+		int generation;
 		int n_population;
 		Individual** population;
 		void* (*create_individual_function)();
@@ -31,8 +32,10 @@ namespace GeneticAlgorithm {
 	public:
 		GeneticAlgorithm(int population_size, void* createIndividual(), void destroyIndividual(void*), float fitnessFunction(void*));
 		void destroy();
+		void eraseFitness();
 		int getPopulationSize();
 		Individual** getPopulation();
+		int getGeneration();
 		void* getBest();
 		void orderByFitness();
 		void runGen();
