@@ -17,18 +17,18 @@ namespace AnnGA {
 			switch (nn->layers[i]->type)
 			{
 			case Layer::dense:(
-				max_cut_point = ((Layer::Dense*)nn->layers[i]->data)->weights.height * ((Layer::Dense*)nn->layers[i]->data)->weights.height);
+				max_cut_point = ((Layer::Dense*)nn->layers[i]->data)->weights.height * ((Layer::Dense*)nn->layers[i]->data)->weights.width);
 				mutations = (int)rand() % max_cut_point;
 				for (int j = 0; j < mutations; j++) {
 					cut_point_i = (int)rand() % ((Layer::Dense*)nn->layers[i]->data)->weights.height;
 					cut_point_j = (int)rand() % ((Layer::Dense*)nn->layers[i]->data)->weights.width;
-					((float**)((Layer::Dense*)nn->layers[i]->data)->weights.data)[cut_point_i][cut_point_j] *= (1 - ((int)rand() % 3)) / 2.f;
+					((float**)((Layer::Dense*)nn->layers[i]->data)->weights.data)[cut_point_i][cut_point_j] *= ((int)rand() % 10 + 1) / 100.f * (rand() % 2 == 1 ? -1 : 1);
 				}
 				max_cut_point = ((Layer::Dense*)nn->layers[i]->data)->bias.width;
 				mutations = (int)rand() % max_cut_point;
 				for (int j = 0; j < mutations; j++) {
 					cut_point_j = (int)rand() % ((Layer::Dense*)nn->layers[i]->data)->weights.width;
-					((float**)((Layer::Dense*)nn->layers[i]->data)->weights.data)[0][cut_point_j] *= (1 - ((int)rand() % 3)) / 2.f;
+					((float**)((Layer::Dense*)nn->layers[i]->data)->bias.data)[0][cut_point_j] *= ((int)rand() % 10 + 1) / 100.f * (rand() % 2 == 1 ? -1 : 1);
 				}
 				break;
 			default:
@@ -50,10 +50,10 @@ namespace AnnGA {
 			case Layer::dense:
 				son->addLayerDense(((Layer::Dense*)father->layers[i]->data)->n_outputs, ((Layer::Dense*)father->layers[i]->data)->activation_function);
 
-				cut_point = (int)rand() % (((Layer::Dense*)father->layers[i]->data)->weights.height * ((Layer::Dense*)father->layers[i]->data)->weights.height);
+				cut_point = (int)rand() % (((Layer::Dense*)father->layers[i]->data)->weights.height * ((Layer::Dense*)father->layers[i]->data)->weights.width);
 				((Layer::Dense*)son->layers[i]->data)->weights.overwrite(((Layer::Dense*)father->layers[i]->data)->weights.crossover(((Layer::Dense*)mother->layers[i]->data)->weights, cut_point));
 
-				cut_point = rand() % (((Layer::Dense*)father->layers[i]->data)->bias.height * ((Layer::Dense*)father->layers[i]->data)->bias.height);
+				cut_point = rand() % (((Layer::Dense*)father->layers[i]->data)->bias.height * ((Layer::Dense*)father->layers[i]->data)->bias.width);
 				((Layer::Dense*)son->layers[i]->data)->bias.overwrite(((Layer::Dense*)father->layers[i]->data)->bias.crossover(((Layer::Dense*)mother->layers[i]->data)->bias, cut_point));
 
 			default:
