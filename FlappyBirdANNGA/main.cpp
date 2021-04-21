@@ -40,15 +40,8 @@ float fitnessFunction(void* data) {
 
 int main() {
 	srand(time(NULL));
-	AnnGA::AnnGA annga(500, createIndividual, fitnessFunction);
-	annga.runGen();
-	annga.promptPopulation();
-	annga.run(100, 75, FITNESS_LIMIT);
-	for (int i = 0; i < 50; i++) {
-		annga.run(1, 50);
-		// FlappyBirdInterce::drawInterfaceNN(annga.getBest());
-		FlappyBirdInterce::drawInterfaceGA(annga.getGA());
-	}
+	AnnGA::AnnGA annga(250, createIndividual, fitnessFunction);
+	FlappyBirdInterce::drawInterfaceGA(&annga);
 	annga.destroy();
 	return 0;
 }

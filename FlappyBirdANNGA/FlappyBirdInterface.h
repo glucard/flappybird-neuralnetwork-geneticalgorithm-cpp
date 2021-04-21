@@ -2,8 +2,7 @@
 #define _FLAPPY_BIRD_INTERFACE_H_
 
 #include "FlappyBirdLib/FlappyBird.h"
-#include "NeuralNetworkLib/NeuralNetwork.h"
-#include "GeneticAlgorithmLib/GeneticAlgorithm.h"
+#include "AnnGALib/AnnGA.h"
 
 #include "SFML/Graphics.hpp"
 #include <Windows.h>
@@ -16,11 +15,11 @@
 #define GRAVITY_ACCELERATION 0.5
 #define TUNNEL_VELOCITY -2.5
 #define BIRD_FLAP_ACCELERATION 7
-#define BIRD_MAX_SPEED 17
+#define BIRD_MAX_SPEED 13
 #define TICKETS 30
 
 namespace FlappyBirdInterce {
-	void drawInterfaceGA(GeneticAlgorithm::GeneticAlgorithm* ga);
+	void drawInterfaceGA(AnnGA::AnnGA* annga);
 }
 
 #endif // !_FLAPPY_BIRD_INTERFACE_H_
