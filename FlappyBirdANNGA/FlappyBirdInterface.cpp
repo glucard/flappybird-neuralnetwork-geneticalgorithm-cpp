@@ -131,6 +131,7 @@ namespace FlappyBirdInterce {
         window.setFramerateLimit(60);
 
         // Initiating sfml shapes. /////////////////////////// 
+        sf::RectangleShape sky_shape(sf::Vector2f(RESOLUTION_X, RESOLUTION_Y * 4));
         sf::RectangleShape back_background_shape(sf::Vector2f(RESOLUTION_X * 4, RESOLUTION_Y));
         sf::RectangleShape front_background_shape(sf::Vector2f(RESOLUTION_X * 2, RESOLUTION_Y));
         sf::RectangleShape tunnel_shape(sf::Vector2f(game.getTunnelWidth(), game.getTunnelHeight()));
@@ -147,7 +148,14 @@ namespace FlappyBirdInterce {
         panel_background_shape.setPosition(sf::Vector2f(RESOLUTION_X, 0));
 
         // Loading textures.
-        sf::Texture tunnel_texture, bird_texture, front_background_texture, back_background_texture;
+        sf::Texture tunnel_texture, bird_texture, front_background_texture, back_background_texture, sky_texture;
+
+        if (sky_texture.loadFromFile("sprites/sky.png")) {
+            sky_shape.setTexture(&sky_texture);
+        }
+        else {
+            sky_shape.setFillColor(sf::Color(0, 175, 255));
+        }
 
         if (back_background_texture.loadFromFile("sprites/back_background.png")) {
             back_background_shape.setTexture(&back_background_texture);
@@ -155,7 +163,7 @@ namespace FlappyBirdInterce {
         else {
             front_background_shape.setFillColor(sf::Color(0, 175, 255));
         }
-        
+
         if (front_background_texture.loadFromFile("sprites/front_background.png")) {
             front_background_shape.setTexture(&front_background_texture);
         }
@@ -193,6 +201,7 @@ namespace FlappyBirdInterce {
         float fitness = 0;
         int birds_alive = 0;
 
+        float sky_position_y = 0;
         float back_background_position_x = 0;
         float front_background_position_x = 0;
 
@@ -221,6 +230,11 @@ namespace FlappyBirdInterce {
 
             // clear the window.
             window.clear();
+
+            sky_position_y -= 0.1;
+            if (sky_position_y < -RESOLUTION_Y * 3) sky_position_y = 0;
+            sky_shape.setPosition(sf::Vector2f(0, sky_position_y));
+            window.draw(sky_shape);
 
             back_background_position_x -= 0.5;
             if (back_background_position_x < -RESOLUTION_X * 3) back_background_position_x = 0;
