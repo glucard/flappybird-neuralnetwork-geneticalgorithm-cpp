@@ -128,7 +128,8 @@ namespace FlappyBirdInterce {
 
         // Setting sfml window.
         sf::RenderWindow window(sf::VideoMode(RESOLUTION_X + 200.f, RESOLUTION_Y), "Flappy Bird");
-        window.setFramerateLimit(60);
+        float frame_rate_limit = 60;
+        window.setFramerateLimit(frame_rate_limit);
 
         // Initiating sfml shapes. /////////////////////////// 
         sf::RectangleShape sky_shape(sf::Vector2f(RESOLUTION_X, RESOLUTION_Y * 4));
@@ -152,6 +153,7 @@ namespace FlappyBirdInterce {
 
         if (bird_texture.loadFromFile("sprites/bird.png")) {
             for (int i = 0; i < population_size; i++) {
+                bird_shapes[i]->setRadius(game_bird_radius *1.2);
                 bird_shapes[i]->setTexture(&bird_texture);
             }
 
@@ -225,7 +227,15 @@ namespace FlappyBirdInterce {
                 case sf::Event::KeyPressed: // detect keyboard press.
                     switch (event.key.code) {
                     case sf::Keyboard::Space:
-                        game.bird_list.begin()->flap(BIRD_FLAP_ACCELERATION);
+                        if (frame_rate_limit != 60) {
+                            frame_rate_limit = 60;
+                            window.setFramerateLimit(60);
+                        }
+                        else {
+                            frame_rate_limit = 0;
+                        }
+                        window.setFramerateLimit(frame_rate_limit);
+                        //game.bird_list.begin()->flap(BIRD_FLAP_ACCELERATION);
                     default:
                         break;
                     }
@@ -362,7 +372,7 @@ namespace FlappyBirdInterce {
             else { // if the game is not updating (then no one bird is alive):
                 game.restart(); // restart the game.
                 annga->getGA()->orderByFitness();
-                annga->getGA()->repocreate(population_size / 4, AnnGA::repocreateIndividual);
+                annga->getGA()->repocreate(population_size / 8, AnnGA::repocreateIndividual);
                 annga->getGA()->eraseFitness();
             }
         }
