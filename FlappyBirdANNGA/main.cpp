@@ -6,9 +6,9 @@
 #define FITNESS_LIMIT 25000
 
 void* createIndividual() {
-	int input_shape[2] = { 1,3 };
+	int input_shape[2] = { 1,2 };
 	NeuralNetwork::NeuralNetwork* nn = new NeuralNetwork::NeuralNetwork(input_shape);
-	nn->addLayerDense(4, ActivationFunction::ReLU);
+	nn->addLayerDense(2, ActivationFunction::ReLU);
 	nn->addLayerDense(1, ActivationFunction::sigmoid);
 
 	return nn;
@@ -40,7 +40,7 @@ float fitnessFunction(void* data) {
 
 int main() {
 	srand(time(NULL));
-	AnnGA::AnnGA annga(250, createIndividual, fitnessFunction);
+	AnnGA::AnnGA annga(50, createIndividual, fitnessFunction);
 	FlappyBirdInterce::drawInterfaceGA(&annga);
 	annga.destroy();
 	return 0;
