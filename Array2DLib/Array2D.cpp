@@ -28,7 +28,7 @@ namespace Array {
 			for (int i = 0; i < array_height; i++) {
 				((float**)data)[i] = (float*)malloc(array_width * sizeof(float));
 				for (int j = 0; j < array_width; j++) {
-					((float**)data)[i][j] = (float)rand() / RAND_MAX;
+					((float**)data)[i][j] = (float)rand() / RAND_MAX * (rand()%2 == 0 ? 1 : -1);
 				}
 			}
 			break;
