@@ -120,7 +120,7 @@ namespace FlappyBirdInterce {
 
         // Setting the bird radius.
         float lower_resolution = (RESOLUTION_X > RESOLUTION_Y ? RESOLUTION_X : RESOLUTION_Y);
-        float game_bird_radius = RESOLUTION_Y / 30;
+        float game_bird_radius = RESOLUTION_Y / 20;
 
         // Starting the instance of FlappyBird.
         FlappyBird game(population_size, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, game_bird_radius, RESOLUTION_X / 10,
@@ -149,6 +149,13 @@ namespace FlappyBirdInterce {
 
         // Loading textures.
         sf::Texture tunnel_texture, bird_texture, front_background_texture, back_background_texture, sky_texture;
+
+        if (bird_texture.loadFromFile("sprites/bird.png")) {
+            for (int i = 0; i < population_size; i++) {
+                bird_shapes[i]->setTexture(&bird_texture);
+            }
+
+        }
 
         if (sky_texture.loadFromFile("sprites/sky.png")) {
             sky_shape.setTexture(&sky_texture);
@@ -320,10 +327,20 @@ namespace FlappyBirdInterce {
                 // this for basically search for the first bird alive, and draw they neuralnetwork.
                 for (i_bird = game.bird_list.begin(); i_bird != game.bird_list.end(); ++i_bird) {
                     if (i_bird->isAlive) {
+
+                        // draw neural network.
                         a.overwrite(game.getIaInput(*i_bird));
                         nn = (NeuralNetwork::NeuralNetwork*)population[i_population]->getData();
-                        drawNN(&window, nn, a.copy(), RESOLUTION_X+5, 400, 200-5, 200);
+                        drawNN(&window, nn, a.copy(), RESOLUTION_X+5, 470, 200-5, 200);
                         
+                        // draw panel bird.
+
+                        window.draw(*bird_shapes[i_population]); // draw again in front
+
+
+                        bird_shapes[i_population]->setPosition(sf::Vector2f(RESOLUTION_X+10, 370));
+                        window.draw(*bird_shapes[i_population]);
+
                         fitness = population[i_population]->getFitness();
                         break;
                     }
@@ -333,8 +350,8 @@ namespace FlappyBirdInterce {
                 // Draw generation text.
                 osstr.str(""); // erase osstr.
                 osstr << "Generation " << annga->getGA()->getGeneration() + 1; // write in osstr.
-                osstr << "\n\n\nfitness: " << fitness;
                 osstr << "\n\n\nRemains: " << birds_alive;
+                osstr << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfitness: " << fitness;
                 generation_text.setString(osstr.str()); // set text string.
                 window.draw(generation_text);
 

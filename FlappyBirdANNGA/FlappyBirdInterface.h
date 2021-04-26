@@ -15,7 +15,7 @@
 #define GRAVITY_ACCELERATION 0.5
 #define TUNNEL_VELOCITY -2.5
 #define BIRD_FLAP_ACCELERATION 7
-#define BIRD_MAX_SPEED 13
+#define BIRD_MAX_SPEED 10
 #define TICKETS 30
 
 namespace FlappyBirdInterce {
