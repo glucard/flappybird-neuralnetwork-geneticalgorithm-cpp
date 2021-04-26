@@ -139,7 +139,7 @@ namespace FlappyBirdInterce {
         sf::CircleShape** bird_shapes = (sf::CircleShape**)malloc(population_size * sizeof(sf::CircleShape*));
         for (int i = 0; i < population_size; i++) {
             bird_shapes[i] = new sf::CircleShape(game_bird_radius);
-            bird_shapes[i]->setFillColor(sf::Color(rand() % 255, rand() % 255, rand() % 255));
+            bird_shapes[i]->setFillColor(sf::Color(100 + rand() % 155, 100 + rand() % 155, 100 + rand() % 155));
         }
 
         // Setting background panel shape.
