@@ -1,3 +1,5 @@
+It's an old project, and I was a complete novice in machine learning when I did it, but I'm keeping it because I like it.
+
 # flappybird-neuralnetwork-geneticalgorithm-cpp
 
 All the codes were made by me.\
