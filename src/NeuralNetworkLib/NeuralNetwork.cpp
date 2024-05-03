@@ -1,4 +1,4 @@
-#include "NeuralNetwork.h"
+#include "NeuralNetwork.hpp"
 
 namespace NeuralNetwork {
 	NeuralNetwork::NeuralNetwork(const int* _input_shape) {

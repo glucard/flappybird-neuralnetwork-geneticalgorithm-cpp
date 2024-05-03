@@ -1,7 +1,7 @@
 #include <list>
-#include "AnnGALib/AnnGA.h"
-#include "FlappyBirdLib/FlappyBird.h"
-#include "FlappyBirdInterface.h"
+#include "AnnGA.hpp"
+#include "FlappyBird.hpp"
+#include "FlappyBirdInterface.hpp"
 
 #define FITNESS_LIMIT 25000
 
