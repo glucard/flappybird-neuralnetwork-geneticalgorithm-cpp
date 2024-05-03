@@ -1,8 +1,8 @@
 #ifndef _FLAPPY_BIRD_INTERFACE_H_
 #define _FLAPPY_BIRD_INTERFACE_H_
 
-#include "FlappyBirdLib/FlappyBird.hpp"
-#include "AnnGALib/AnnGA.hpp"
+#include "FlappyBird.hpp"
+#include "AnnGA.hpp"
 
 #include "SFML/Graphics.hpp"
 // #include <Windows.h>

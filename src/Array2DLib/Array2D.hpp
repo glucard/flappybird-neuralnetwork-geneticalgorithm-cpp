@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <iostream>
+#include <cmath>
 
 #define FLOAT_TYPE 0
 

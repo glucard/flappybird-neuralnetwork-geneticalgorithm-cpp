@@ -1,4 +1,4 @@
-#include "Array2D.h"
+#include "Array2D.hpp"
 
 namespace Array {
 	void* allocData(int data_type, const int array_height, const int array_width, void* data_to_alloc) {

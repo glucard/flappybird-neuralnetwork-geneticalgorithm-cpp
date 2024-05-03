@@ -1,4 +1,4 @@
-#include "GeneticAlgorithm.h"
+#include "GeneticAlgorithm.hpp"
 
 namespace GeneticAlgorithm {
 

@@ -1,9 +1,9 @@
 #ifndef _ANN_GA_H_
 #define _ANN_GA_H_
 
-#include "Array2DLib/Array2D.hpp"
-#include "NeuralNetworkLib/NeuralNetwork.hpp"
-#include "GeneticAlgorithmLib/GeneticAlgorithm.hpp"
+#include "Array2D.hpp"
+#include "NeuralNetwork.hpp"
+#include "GeneticAlgorithm.hpp"
 
 namespace AnnGA {
 

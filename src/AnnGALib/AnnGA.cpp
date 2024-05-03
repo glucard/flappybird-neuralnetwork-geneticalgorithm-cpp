@@ -1,4 +1,4 @@
-#include "AnnGA.h"
+#include "AnnGA.hpp"
 
 namespace AnnGA {
 

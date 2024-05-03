@@ -1,4 +1,4 @@
-#include "ActivationFunction.h"
+#include "ActivationFunction.hpp"
 
 namespace ActivationFunction {
 	void ReLU(void* x) {

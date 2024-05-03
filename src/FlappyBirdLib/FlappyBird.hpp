@@ -2,7 +2,7 @@
 #define FLAPPY_BIRD_H
 
 #include <list>
-#include "Array2DLib/Array2D.hpp"
+#include "Array2D.hpp"
 
 /* Postion Class */
 class Position {

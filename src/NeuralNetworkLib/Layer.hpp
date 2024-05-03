@@ -1,7 +1,7 @@
 #ifndef _LAYER_H_
 #define _LAYER_H_
 
-#include "Array2DLib/Array2D.hpp"
+#include "Array2D.hpp"
 #include "ActivationFunction.hpp"
 
 
