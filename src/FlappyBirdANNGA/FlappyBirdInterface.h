@@ -5,10 +5,11 @@
 #include "AnnGALib/AnnGA.h"
 
 #include "SFML/Graphics.hpp"
-#include <Windows.h>
+// #include <Windows.h>
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <math.h>
 
 #define RESOLUTION_X 800
 #define RESOLUTION_Y 600
