@@ -1,8 +1,8 @@
 #ifndef _NEURAL_NETWORK_H_
 #define _NEURAL_NETWORK_H_
 
-#include "Array2DLib/Array2D.h"
-#include "Layer.h"
+#include "Array2DLib/Array2D.hpp"
+#include "Layer.hpp"
 
 namespace NeuralNetwork {
 	class NeuralNetwork
