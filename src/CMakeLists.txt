@@ -1,0 +1,7 @@
+add_subdirectory(Array2DLib)
+add_subdirectory(AnnGALib)
+add_subdirectory(FlappyBirdANNGA)
+add_subdirectory(FlappyBirdLib)
+add_subdirectory(GeneticAlgorithmLib)
+add_subdirectory(NeuralNetworkLib)
+
