@@ -151,7 +151,7 @@ namespace FlappyBirdInterce {
         // Loading textures.
         sf::Texture tunnel_texture, bird_texture, front_background_texture, back_background_texture, sky_texture;
 
-        if (bird_texture.loadFromFile("sprites/bird.png")) {
+        if (bird_texture.loadFromFile("assets/sprites/bird.png")) {
             for (int i = 0; i < population_size; i++) {
                 bird_shapes[i]->setRadius(game_bird_radius *1.2);
                 bird_shapes[i]->setTexture(&bird_texture);
@@ -159,28 +159,28 @@ namespace FlappyBirdInterce {
 
         }
 
-        if (sky_texture.loadFromFile("sprites/sky.png")) {
+        if (sky_texture.loadFromFile("assets/sprites/sky.png")) {
             sky_shape.setTexture(&sky_texture);
         }
         else {
             sky_shape.setFillColor(sf::Color(0, 175, 255));
         }
 
-        if (back_background_texture.loadFromFile("sprites/back_background.png")) {
+        if (back_background_texture.loadFromFile("assets/sprites/back_background.png")) {
             back_background_shape.setTexture(&back_background_texture);
         }
         else {
             front_background_shape.setFillColor(sf::Color(0, 175, 255));
         }
 
-        if (front_background_texture.loadFromFile("sprites/front_background.png")) {
+        if (front_background_texture.loadFromFile("assets/sprites/front_background.png")) {
             front_background_shape.setTexture(&front_background_texture);
         }
         else {
             front_background_shape.setFillColor(sf::Color(0, 175, 255, 0));
         }
 
-        if (tunnel_texture.loadFromFile("sprites/tunnel.png")) {
+        if (tunnel_texture.loadFromFile("assets/sprites/tunnel.png")) {
             tunnel_shape.setTexture(&tunnel_texture);
         }
         else {
@@ -190,7 +190,7 @@ namespace FlappyBirdInterce {
 
         // configure the sf::text.
         sf::Font font;
-        font.loadFromFile("PressStart2P-Regular.ttf");
+        font.loadFromFile("assets/PressStart2P-Regular.ttf");
         sf::Text text;
         text.setFont(font);
         text.setPosition(sf::Vector2f(RESOLUTION_X / 2, RESOLUTION_Y / 10));

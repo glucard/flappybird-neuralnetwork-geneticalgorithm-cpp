@@ -39,3 +39,5 @@ target_link_libraries(flapy_nn
 )
 
 target_compile_options(flapy_nn PRIVATE -Wall)
+
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
