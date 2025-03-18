@@ -14,7 +14,7 @@ double sunlightIntensity(double x) {
     g = sin(x*M_PI);
     f = (f >= g) ? f : g;
     f = f - 0.7;
-    return f > 0.f ? f : 0.f;
+    return f > 0.f ? f*2 : 0.f;
 }
 
 
@@ -239,7 +239,7 @@ namespace FlappyBirdInterce {
         lightRadii[2]     = 500.f;  // moon’s radius
 
         lightColors[0]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
-        lightColors[1]    = sf::Glsl::Vec3(1.0f, 1.0f, 0.3f);  // yellow-ish for sun
+        lightColors[1]    = sf::Glsl::Vec3(1.0f, 1.0f, 0.6f);  // yellow-ish for sun
         lightColors[2]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
 
         // Set uniforms that won’t change often (e.g., the number of lights)
@@ -326,13 +326,29 @@ namespace FlappyBirdInterce {
             window.draw(front_background_shape);
 
             
-            float backgroundOffsetY = /* some logic here */ 0.0f;
-            lightPositions[0].y = 300.0f - sky_position_y; // moon
-            lightPositions[1].y = -600.0f - sky_position_y; // sun
+            sf::Vector2u winSize = window.getSize();    
+            std::cout << "x y:" << winSize.x << std::endl;
+
+            // float backgroundOffsetY = /* some logic here */ 0.0f;
+            lightPositions[0].x = winSize.x * 0.4f; // moon
+            lightPositions[1].x = winSize.x * 0.4f; // moon
+
+            // 300 => new_y //  res_y => new_res
+            // 300/scaled_y = RESOLUTION_Y / winSize.y
+
+
+            float y_scale_factor = winSize.y / RESOLUTION_Y;
+
+            lightPositions[0].y = (400 - sky_position_y) * y_scale_factor; // moon
+            lightPositions[1].y = (-500.0f - sky_position_y) * y_scale_factor; // sun
+            
+            
+
+
             // std::cout << "y: " << -sky_position_y << "Moon: " << lightPositions[0].y << " Sun:" << lightPositions[1].y << std::endl;
 
             float ambient_strength = sunlightIntensity(-sky_position_y);
-            std::cout << "-sky_position_y: " << -sky_position_y << "ambient_strength: " << ambient_strength << std::endl;
+            std::cout << "-sky_position_y: " << -sky_position_y << "scaled_y: " << y_scale_factor << std::endl;
             multiLightShader.setUniform("ambientStrength", ambient_strength); // Tweak to taste
 
             // Now update the shader with these dynamic values:
