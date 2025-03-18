@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 
 include(FetchContent)
 
-project(flapybird-nn VERSION 0.1.0 LANGUAGES C CXX)
+project(flapybird-nn VERSION 0.1.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -10,8 +10,7 @@ set(SFML_VERSION "2.5.1")
 
 FetchContent_Declare(
     sfml
-    GIT_REPOSITORY "https://github.com/SFML/SFML.git"
-    GIT_TAG        "${SFML_VERSION}"
+    URL "https://github.com/SFML/SFML/archive/refs/tags/3.0.0.zip"
 )
 
 FetchContent_GetProperties(sfml)
@@ -40,4 +39,9 @@ target_link_libraries(flapy_nn
 
 target_compile_options(flapy_nn PRIVATE -Wall)
 
-file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
+add_custom_target(copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    ${CMAKE_BINARY_DIR}/assets
+    COMMENT "Copying assets to binary directory"
+)

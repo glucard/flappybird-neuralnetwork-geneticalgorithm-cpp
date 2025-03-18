@@ -1,5 +1,23 @@
 #include "FlappyBirdInterface.hpp"
 
+
+#include <iostream>
+#include <cmath>
+
+double sunlightIntensity(double x) {
+    if (x < 0 || x > 1800) return 0.0;
+    x = x/1800;
+    float f = cos(4 * M_PI * x);
+    float g = 0.5 * (1+ cos(2*M_PI*x));
+    
+    f = (f >= g) ? f : g;
+    g = sin(x*M_PI);
+    f = (f >= g) ? f : g;
+    f = f - 0.7;
+    return f > 0.f ? f : 0.f;
+}
+
+
 namespace FlappyBirdInterce {
 
     void drawLine(sf::RenderWindow *window, float color_scale, float alpha_scale, float start_x, float start_y, float end_x, float end_y) {
@@ -7,12 +25,16 @@ namespace FlappyBirdInterce {
         float real_alpha_color = (alpha_scale * alpha_scale < color_scale * color_scale ? alpha_scale : color_scale);
         
 
-        sf::Vertex line[] =
-        {
-            sf::Vertex(sf::Vector2f(start_x, start_y)),
-            sf::Vertex(sf::Vector2f(end_x, end_y))
-        };
+        // sf::Vertex line[] =
+        // {
+        //     sf::Vertex(sf::Vector2f(start_x, start_y)),
+        //     sf::Vertex(sf::Vector2f(end_x, end_y))
+        // };
         
+        sf::VertexArray line(sf::PrimitiveType::Lines);
+        line[0].position = sf::Vector2f(start_x, start_y);
+        line[1].position = sf::Vector2f(end_x, end_y);
+
         if (color_scale < 0) {
             sf::Color negative_color(0, 255, 0, fabsf(real_alpha_color) * 255);
             line[0].color = negative_color; 
@@ -23,7 +45,8 @@ namespace FlappyBirdInterce {
             line[0].color = positive_color;
             line[1].color = positive_color;
         }
-        window->draw(line, 2, sf::Lines);
+        // window->draw(line, 2);
+        window->draw(line);
     }
 
     void drawNN(sf::RenderWindow *window, NeuralNetwork::NeuralNetwork *nn, Array::Array2D input, float position_x, float position_y, float width, float height) {
@@ -123,11 +146,12 @@ namespace FlappyBirdInterce {
         float game_bird_radius = RESOLUTION_Y / 20;
 
         // Starting the instance of FlappyBird.
-        FlappyBird game(population_size, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, game_bird_radius, RESOLUTION_X / 10,
+	    float tunnel_base_acceleration = 0; //0.001;
+        FlappyBird game(population_size, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, tunnel_base_acceleration, game_bird_radius, RESOLUTION_X / 10,
             RESOLUTION_Y / 2, 0, 0);
 
         // Setting sfml window.
-        sf::RenderWindow window(sf::VideoMode(RESOLUTION_X + 200.f, RESOLUTION_Y), "Flappy Bird");
+        sf::RenderWindow window(sf::VideoMode({RESOLUTION_X + 200, RESOLUTION_Y}), "Flappy Bird");
         float frame_rate_limit = 60;
         window.setFramerateLimit(frame_rate_limit);
 
@@ -188,18 +212,50 @@ namespace FlappyBirdInterce {
         }
         tunnel_entrace_shape.setFillColor(sf::Color(0, 0, 0, 220));
 
+
+        // shading
+        // 1) Load the multi-light shader (before the main game loop)
+        sf::Shader multiLightShader;
+        if (!multiLightShader.loadFromFile("assets/shaders/multiLight.frag", sf::Shader::Type::Fragment))
+        {
+            std::cerr << "Error loading multi-light shader\n";
+        }
+
+        // 2) Prepare arrays for the light sources
+        //    Suppose you have two lights: one for the moon and one for the sun.
+        //    We'll store their positions, radii, and colors in std::vectors.
+        int numLights = 3; // We have 2 light sources
+        std::vector<sf::Vector2f> lightPositions(numLights);
+        std::vector<float>         lightRadii(numLights);
+        std::vector<sf::Glsl::Vec3> lightColors(numLights);
+
+        // Example initial values (you’ll update them later in the main loop)
+        lightPositions[0] = sf::Vector2f(400, 300);  // e.g., moon near top
+        lightPositions[1] = sf::Vector2f(400, -600);  // e.g., sun in the middle
+        lightPositions[2] = sf::Vector2f(400, -1500);  // e.g., moon again
+
+        lightRadii[0]     = 500.f;  // moon’s radius
+        lightRadii[1]     = 1200.f;  // sun’s radius
+        lightRadii[2]     = 500.f;  // moon’s radius
+
+        lightColors[0]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
+        lightColors[1]    = sf::Glsl::Vec3(1.0f, 1.0f, 0.3f);  // yellow-ish for sun
+        lightColors[2]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
+
+        // Set uniforms that won’t change often (e.g., the number of lights)
+        multiLightShader.setUniform("numLights", numLights);
+        multiLightShader.setUniform("ambientStrength", 0.0f); // Tweak to taste
+
         // configure the sf::text.
         sf::Font font;
-        font.loadFromFile("assets/PressStart2P-Regular.ttf");
-        sf::Text text;
-        text.setFont(font);
+        font.openFromFile("assets/PressStart2P-Regular.ttf");
+        sf::Text text(font);
         text.setPosition(sf::Vector2f(RESOLUTION_X / 2, RESOLUTION_Y / 10));
         text.setCharacterSize(84);
         text.setFillColor(sf::Color::White);
         text.setStyle(sf::Text::Bold);
 
-        sf::Text generation_text;
-        generation_text.setFont(font);
+        sf::Text generation_text(font);
         generation_text.setPosition(sf::Vector2f(RESOLUTION_X + 5, 50));
         generation_text.setCharacterSize(14);
         generation_text.setFillColor(sf::Color::White);
@@ -217,16 +273,12 @@ namespace FlappyBirdInterce {
         // While the window is open:
         while (window.isOpen())
         {
-            sf::Event event;
-            while (window.pollEvent(event))
+            while (const std::optional event = window.pollEvent())
             {
-                switch (event.type) {
-                case sf::Event::Closed:
+                if (event->is<sf::Event::Closed>())
                     window.close();
-                    break;
-                case sf::Event::KeyPressed: // detect keyboard press.
-                    switch (event.key.code) {
-                    case sf::Keyboard::Space:
+                else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()){ // detect keyboard press.
+                    if (keyPressed->code == sf::Keyboard::Key::Space){
                         if (frame_rate_limit != 60) {
                             frame_rate_limit = 60;
                             window.setFramerateLimit(60);
@@ -236,15 +288,25 @@ namespace FlappyBirdInterce {
                         }
                         window.setFramerateLimit(frame_rate_limit);
                         //game.bird_list.begin()->flap(BIRD_FLAP_ACCELERATION);
-                    default:
-                        break;
                     }
-                    break;
-                default:
-                    break;
+                        
+
+                    // switch (event.key.code) {
+                    //     if keyPressed->code == sf::
+                    //         if (frame_rate_limit != 60) {
+                    //             frame_rate_limit = 60;
+                    //             window.setFramerateLimit(60);
+                    //         }
+                    //         else {
+                    //             frame_rate_limit = 0;
+                    //         }
+                    //         window.setFramerateLimit(frame_rate_limit);
+                    //         //game.bird_list.begin()->flap(BIRD_FLAP_ACCELERATION);
+                    //     default:
+                    //         break;
+                    //     }
                 }
             }
-
             // clear the window.
             window.clear();
 
@@ -263,6 +325,22 @@ namespace FlappyBirdInterce {
             front_background_shape.setPosition(sf::Vector2f(front_background_position_x, 0));
             window.draw(front_background_shape);
 
+            
+            float backgroundOffsetY = /* some logic here */ 0.0f;
+            lightPositions[0].y = 300.0f - sky_position_y; // moon
+            lightPositions[1].y = -600.0f - sky_position_y; // sun
+            // std::cout << "y: " << -sky_position_y << "Moon: " << lightPositions[0].y << " Sun:" << lightPositions[1].y << std::endl;
+
+            float ambient_strength = sunlightIntensity(-sky_position_y);
+            std::cout << "-sky_position_y: " << -sky_position_y << "ambient_strength: " << ambient_strength << std::endl;
+            multiLightShader.setUniform("ambientStrength", ambient_strength); // Tweak to taste
+
+            // Now update the shader with these dynamic values:
+            multiLightShader.setUniformArray("lightPos", &lightPositions[0], numLights);
+            multiLightShader.setUniformArray("lightRadius", &lightRadii[0], numLights);
+            multiLightShader.setUniformArray("lightColor", &lightColors[0], numLights);
+
+
             // if the game is updating and have at least one bird alive:
             if (game.update(GRAVITY_ACCELERATION, BIRD_MAX_SPEED)) {
 
@@ -276,7 +354,8 @@ namespace FlappyBirdInterce {
                     tunnel_entrace_shape.setSize(sf::Vector2f(i_tunnel->getWidth(), i_tunnel->entrance.height));
 
                     // Draw the shapes.
-                    window.draw(tunnel_shape);
+                    //window.draw(tunnel_shape);
+                    window.draw(tunnel_shape, &multiLightShader);
                     window.draw(tunnel_entrace_shape);
                 }
 
@@ -318,7 +397,7 @@ namespace FlappyBirdInterce {
 
                     // set the bird_shape position and draw it.
                     bird_shapes[i_population]->setPosition(sf::Vector2f(i_bird->position.getX(), RESOLUTION_Y - i_bird->position.getY()));
-                    window.draw(*bird_shapes[i_population]);
+                    window.draw(*bird_shapes[i_population], &multiLightShader);
 
                     i_population++;
                 }
@@ -341,11 +420,11 @@ namespace FlappyBirdInterce {
                         // draw neural network.
                         a.overwrite(game.getIaInput(*i_bird));
                         nn = (NeuralNetwork::NeuralNetwork*)population[i_population]->getData();
-                        drawNN(&window, nn, a.copy(), RESOLUTION_X+5, 470, 200-5, 200);
+                        //drawNN(&window, nn, a.copy(), RESOLUTION_X+5, 470, 200-5, 200);
                         
                         // draw panel bird.
 
-                        window.draw(*bird_shapes[i_population]); // draw again in front
+                        window.draw(*bird_shapes[i_population], &multiLightShader); // draw again in front
 
 
                         bird_shapes[i_population]->setPosition(sf::Vector2f(RESOLUTION_X+10, 370));

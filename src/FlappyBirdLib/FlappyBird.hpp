@@ -134,6 +134,7 @@ public:
 class Tunnel {
 	float width; // width value.
 	float height; // height value.
+	float base_acceleration;
 public:
 	Position position; // postition class.
 	Velocity velocity; // velocity class.
@@ -152,7 +153,7 @@ public:
 	* @param entrace_position_y Contains the entrace position y value.
 	*/
 	Tunnel(float _width, float _height, float position_x, float position_y,
-		float velocity_x, float velocity_y, float entrace_height, float entrace_position_y);
+		float velocity_x, float velocity_y, float entrace_height, float entrace_position_y, float _base_acceleration);
 
 	/**
 	* A get function.
@@ -164,7 +165,7 @@ public:
 	/**
 	* This function must be called to update the game frame.
 	*/
-	void update();
+	void update(unsigned int current_frame);
 };
 
 /* Class Bird */
@@ -220,13 +221,15 @@ public:
 /* class FlappyBird */
 class FlappyBird {
 private:
+	unsigned int current_frame;
 	int n_birds;
 	int points; // The points made by the player.
 	int resX; // Resolution X.
 	int resY; // Resolution Y.
 	float tunnel_width; // Contains the width of the tunnels.
 	float tunnel_height; // Contains the height of the tunnels.
-	float tunnel_velocity;  // Contains the velocity of the tunnels.
+	float tunnel_base_velocity;  // Contains the velocity of the tunnels.
+	float tunnel_base_acceleration;
 	std::list <Tunnel> ::iterator next_tunnel;
 	std::list <Tunnel> ::iterator next_bird_tunnel; // Contains the next tunnel that the bird will pass.
 public:
@@ -245,7 +248,7 @@ public:
 	* @param bird_velocity_x Contains the bird velocity y.
 	* @param bird_velocity_y Contains the bird velocity y.
 	*/
-	FlappyBird(int _n_birds, int _resX, int _resY, float tunnel_velocity, float bird_radius, float bird_position_x,
+	FlappyBird(int _n_birds, int _resX, int _resY, float tunnel_velocity, float _tunnel_base_acceleration, float bird_radius, float bird_position_x,
 		float bird_position_y, float bird_velocity_x, float bird_velocity_y);
 
 	/**

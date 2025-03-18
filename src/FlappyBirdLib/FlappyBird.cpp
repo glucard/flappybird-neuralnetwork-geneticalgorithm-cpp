@@ -54,21 +54,28 @@ float TunnelEntrance::end() {
 	return y + height;
 }
 
-Tunnel::Tunnel(float _width, float _height, float position_x, float position_y,
-	float velocity_x, float velocity_y, float entrace_height, float entrace_position_y)
-	:
+Tunnel::Tunnel(
+	float _width, float _height,
+	float position_x, float position_y,
+	float velocity_x, float velocity_y,
+	float entrace_height, float entrace_position_y,
+	float _base_acceleration
+):
 	position(position_x, position_y),
 	velocity(velocity_x, velocity_y),
 	entrance(entrace_height, entrace_position_y)
 {
 	width = _width;
 	height = _height;
+	base_acceleration = _base_acceleration;
 }
 float Tunnel::getWidth() {
 	return width;
 }
-void Tunnel::update() {
-	position.moveX(velocity.getX());
+void Tunnel::update(unsigned int current_frame) {
+	// std::cout << "base_speed:" << velocity.getX() << " speed:" << velocity.getX() + current_frame * -base_acceleration << " acceleration:" << current_frame * base_acceleration << std::endl;
+
+	position.moveX(velocity.getX() + current_frame * -base_acceleration);
 }
 
 Bird::Bird(float _radius,
@@ -109,7 +116,8 @@ void Bird::update(float gravity_acceleration, float max_velocity) {
 	position.moveY(velocity.getY()); // sum position with velocity.
 }
 
-FlappyBird::FlappyBird(int _n_birds, int resolution_x, int resolution_y, float _tunnel_velocity,
+FlappyBird::FlappyBird(int _n_birds, int resolution_x, int resolution_y,
+	float _tunnel_base_velocity, float _tunnel_base_acceleration,
 	float bird_radius, float bird_position_x, float bird_position_y,
 	float bird_velocity_x, float bird_velocity_y)
 {
@@ -118,12 +126,13 @@ FlappyBird::FlappyBird(int _n_birds, int resolution_x, int resolution_y, float _
 	for (int i = 0; i < n_birds; i++) {
 		addBird(bird_radius, resolution_x / 10.f, resolution_y / 2.f, 0.f, 0.f);
 	}
-
+	current_frame = 0;
 	resX = resolution_x;
 	resY = resolution_y;
 	tunnel_width = resolution_x / 6;
 	tunnel_height = resolution_y;
-	tunnel_velocity = _tunnel_velocity;
+	tunnel_base_velocity = _tunnel_base_velocity;
+	tunnel_base_acceleration = _tunnel_base_acceleration;
 	restart();
 }
 int FlappyBird::getPoints() {
@@ -142,13 +151,12 @@ void FlappyBird::addBird(float _radius,
 void FlappyBird::addTunnel() {
 	float entrace_height = resY / 5;
 	float entrace_position_y = (rand() % (int)(resY * 0.8)) + (resY * 0.1) - entrace_height / 2;
-	tunnel_list.push_back(Tunnel(tunnel_width, resY, resX, 0, tunnel_velocity, 0, entrace_height, entrace_position_y));
+	tunnel_list.push_back(Tunnel(tunnel_width, resY, resX, 0, tunnel_base_velocity, 0, entrace_height, entrace_position_y, tunnel_base_acceleration));
 }
 
 int FlappyBird::update(float gravity_acceleration, float bird_max_velocity) {
 
 	// detect if the player has lost..
-
 	std::list <Bird> ::iterator i_bird;
 	Bird* alive_bird = NULL;
 	for (i_bird = bird_list.begin(); i_bird != bird_list.end(); ++i_bird) {
@@ -188,8 +196,10 @@ int FlappyBird::update(float gravity_acceleration, float bird_max_velocity) {
 	// update each tunnel in the tunnel_list.
 	std::list <Tunnel> ::iterator i_tunnel;
 	for (i_tunnel = tunnel_list.begin(); i_tunnel != tunnel_list.end(); ++i_tunnel) {
-		i_tunnel->update();
+		i_tunnel->update(current_frame);
 	}
+
+	current_frame+=1;
 
 	return 1;
 }
@@ -219,6 +229,7 @@ int FlappyBird::isLost(Bird bird) {
 	return 0;
 }
 void FlappyBird::restart() {
+	current_frame = 0;
 	points = 0; // erase the points.
 
 	// restart the bird position.
@@ -247,7 +258,9 @@ Array::Array2D FlappyBird::getIaInput(Bird bird) {
 	int input_length = 2;
 	float** data = (float**)malloc(sizeof(float*));
 	data[0] = (float*)malloc(input_length * sizeof(float));
-	data[0][0] = bird.position.getY() - (next_bird_tunnel)->entrance.y - bird.getRadius();
-	data[0][1] = bird.velocity.getY();
+	data[0][0] = bird.velocity.getY();
+	data[0][1] = bird.position.getY() - (next_bird_tunnel)->entrance.y - bird.getRadius();
+	// data[0][2] = bird.position.getY() - (next_tunnel)->entrance.y - bird.getRadius();
+	// data[0][3] = current_frame;
 	return Array::Array2D(FLOAT_TYPE, 1, input_length, data);
 }

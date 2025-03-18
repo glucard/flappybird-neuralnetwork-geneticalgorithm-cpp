@@ -8,8 +8,9 @@
 void* createIndividual() {
 	int input_shape[2] = { 1,2 };
 	NeuralNetwork::NeuralNetwork* nn = new NeuralNetwork::NeuralNetwork(input_shape);
-	nn->addLayerDense(5, ActivationFunction::ReLU);
-	nn->addLayerDense(5, ActivationFunction::ReLU);
+	nn->addLayerDense(10, ActivationFunction::ReLU);
+	nn->addLayerDense(10, ActivationFunction::ReLU);
+	nn->addLayerDense(10, ActivationFunction::ReLU);
 	nn->addLayerDense(1, ActivationFunction::sigmoid);
 
 	return nn;
@@ -17,8 +18,9 @@ void* createIndividual() {
 
 float fitnessFunction(void* data) {
 	NeuralNetwork::NeuralNetwork* nn = (NeuralNetwork::NeuralNetwork*)data;
+	float tunnel_base_acceleration = 0.01;
 
-	FlappyBird game(1, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, RESOLUTION_Y / 30, RESOLUTION_X / 10,
+	FlappyBird game(1, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, tunnel_base_acceleration, RESOLUTION_Y / 30, RESOLUTION_X / 10,
 		RESOLUTION_Y / 2, 0, 0);
 
 	float fitness = 0;

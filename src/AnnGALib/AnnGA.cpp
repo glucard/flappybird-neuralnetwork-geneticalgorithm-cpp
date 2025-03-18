@@ -22,13 +22,13 @@ namespace AnnGA {
 				for (int j = 0; j < mutations; j++) {
 					cut_point_i = (int)rand() % ((Layer::Dense*)nn->layers[i]->data)->weights.height;
 					cut_point_j = (int)rand() % ((Layer::Dense*)nn->layers[i]->data)->weights.width;
-					((float**)((Layer::Dense*)nn->layers[i]->data)->weights.data)[cut_point_i][cut_point_j] += 1 * ((int)rand() % 10 + 1) / 100.f * (rand() % 2 == 1 ? -1 : 1);
+					((float**)((Layer::Dense*)nn->layers[i]->data)->weights.data)[cut_point_i][cut_point_j] += 1 * ((int)rand() % 1000 + 1) / 10000.f * (rand() % 2 == 1 ? -1 : 1);
 				}
 				max_cut_point = ((Layer::Dense*)nn->layers[i]->data)->bias.width;
 				mutations = (int)rand() % max_cut_point;
 				for (int j = 0; j < mutations; j++) {
 					cut_point_j = (int)rand() % ((Layer::Dense*)nn->layers[i]->data)->weights.width;
-					((float**)((Layer::Dense*)nn->layers[i]->data)->bias.data)[0][cut_point_j] += 1 * ((int)rand() % 10 + 1) / 100.f * (rand() % 2 == 1 ? -1 : 1);
+					((float**)((Layer::Dense*)nn->layers[i]->data)->bias.data)[0][cut_point_j] += 1 * ((int)rand() % 1000 + 1) / 10000.f * (rand() % 2 == 1 ? -1 : 1);
 				}
 				break;
 			default:

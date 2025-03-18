@@ -20,6 +20,7 @@ The project creates an instance of a flappy bird game. Then, it trains a neural 
 
 #### Install **SFML** dependecies
 - `sudo apt install libsfml-dev libx11-dev libxrandr-dev libxcursor-dev libudev-dev libfreetype-dev libopenal-devlibflac-dev libvorbis-dev ibgl1-mesa-devlibegl1-mesa-dev`
+- or if above throws error: `sudo apt install xorg-dev`
 
 #### Use **cmake** to build the project
 - Open the terminal inside the project root folder
