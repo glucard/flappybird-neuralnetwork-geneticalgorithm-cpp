@@ -17,6 +17,31 @@ double sunlightIntensity(double x) {
     return f > 0.f ? f*2 : 0.f;
 }
 
+sf::Texture computeOcclusionTexture(const sf::RectangleShape& shape, const sf::RenderWindow& window)
+{
+    // Get window size
+    sf::Vector2u windowSize = window.getSize();
+    
+    // Create an off-screen render texture with the same dimensions as the window
+    sf::RenderTexture renderTexture(sf::Vector2u(windowSize.x, windowSize.y));
+
+    // Clear with transparent color so areas with no shape remain transparent
+    renderTexture.clear(sf::Color::Transparent);
+    
+    // Set the view to match the window so the shape is drawn in the correct coordinates
+    renderTexture.setView(window.getView());
+    
+    // Draw the shape onto the off-screen render texture
+    renderTexture.draw(shape);
+    renderTexture.display();
+    
+    // Extract the texture from the render texture.
+    // Note: getTexture() returns a reference to the texture owned by renderTexture,
+    // so if you need an independent texture, copy it.
+    
+    return renderTexture.getTexture();
+}
+
 
 namespace FlappyBirdInterce {
 
@@ -146,7 +171,7 @@ namespace FlappyBirdInterce {
         float game_bird_radius = RESOLUTION_Y / 20;
 
         // Starting the instance of FlappyBird.
-	    float tunnel_base_acceleration = 0; //0.001;
+	    float tunnel_base_acceleration = 0.f;//0.0001;
         FlappyBird game(population_size, RESOLUTION_X, RESOLUTION_Y, TUNNEL_VELOCITY, tunnel_base_acceleration, game_bird_radius, RESOLUTION_X / 10,
             RESOLUTION_Y / 2, 0, 0);
 
@@ -154,6 +179,7 @@ namespace FlappyBirdInterce {
         sf::RenderWindow window(sf::VideoMode({RESOLUTION_X + 200, RESOLUTION_Y}), "Flappy Bird");
         float frame_rate_limit = 60;
         window.setFramerateLimit(frame_rate_limit);
+        window.setPosition(sf::Vector2i(100, 100));
 
         // Initiating sfml shapes. /////////////////////////// 
         sf::RectangleShape sky_shape(sf::Vector2f(RESOLUTION_X, RESOLUTION_Y * 4));
@@ -224,23 +250,45 @@ namespace FlappyBirdInterce {
         // 2) Prepare arrays for the light sources
         //    Suppose you have two lights: one for the moon and one for the sun.
         //    We'll store their positions, radii, and colors in std::vectors.
-        int numLights = 3; // We have 2 light sources
+        int numLights = 5; // We have 2 light sources
         std::vector<sf::Vector2f> lightPositions(numLights);
         std::vector<float>         lightRadii(numLights);
+        std::vector<float>         lightShapeRadius(numLights);
+        std::vector<float>         attenuation_factor(numLights);
         std::vector<sf::Glsl::Vec3> lightColors(numLights);
 
         // Example initial values (you’ll update them later in the main loop)
         lightPositions[0] = sf::Vector2f(400, 300);  // e.g., moon near top
         lightPositions[1] = sf::Vector2f(400, -600);  // e.g., sun in the middle
         lightPositions[2] = sf::Vector2f(400, -1500);  // e.g., moon again
+        lightPositions[3] = sf::Vector2f(677, 300);  // e.g., moon again
+        lightPositions[4] = sf::Vector2f(152, 533);  // e.g., moon again
 
-        lightRadii[0]     = 500.f;  // moon’s radius
+        lightRadii[0]     = 1000.f;  // moon’s radius
         lightRadii[1]     = 1200.f;  // sun’s radius
-        lightRadii[2]     = 500.f;  // moon’s radius
+        lightRadii[2]     = 1000.f;  // moon’s radius
+        lightRadii[3]     = 500.f;  // moon’s radius
+        lightRadii[4]     = 500.f;  // moon’s radius
+
+        
+        attenuation_factor[0]     = 0.7f;  // moon’s radius
+        attenuation_factor[1]     = 1.f;  // sun’s radius
+        attenuation_factor[2]     = 0.7f;  // moon’s radius
+        attenuation_factor[3]     = 0.2f;  // moon’s radius
+        attenuation_factor[4]     = 0.2f;  // moon’s radius
+
+        
+        lightShapeRadius[0] = 100;
+        lightShapeRadius[1] = 200;
+        lightShapeRadius[2] = 100;
+        lightShapeRadius[3] = 25;
+        lightShapeRadius[4] = 25;
 
         lightColors[0]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
         lightColors[1]    = sf::Glsl::Vec3(1.0f, 1.0f, 0.6f);  // yellow-ish for sun
         lightColors[2]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
+        lightColors[3]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
+        lightColors[4]    = sf::Glsl::Vec3(1.0f, 1.0f, 1.0f);  // white-ish for moon
 
         // Set uniforms that won’t change often (e.g., the number of lights)
         multiLightShader.setUniform("numLights", numLights);
@@ -313,48 +361,69 @@ namespace FlappyBirdInterce {
             sky_position_y -= 0.1;
             if (sky_position_y < -RESOLUTION_Y * 3) sky_position_y = 0;
             sky_shape.setPosition(sf::Vector2f(0, sky_position_y));
-            window.draw(sky_shape);
 
             back_background_position_x -= 0.5;
             if (back_background_position_x < -RESOLUTION_X * 3) back_background_position_x = 0;
             back_background_shape.setPosition(sf::Vector2f(back_background_position_x, 0));
-            window.draw(back_background_shape);
 
             front_background_position_x -= 2;
             if (front_background_position_x < -RESOLUTION_X * 1) front_background_position_x = 0;
             front_background_shape.setPosition(sf::Vector2f(front_background_position_x, 0));
-            window.draw(front_background_shape);
+
 
             
             sf::Vector2u winSize = window.getSize();    
-            std::cout << "x y:" << winSize.x << std::endl;
 
             // float backgroundOffsetY = /* some logic here */ 0.0f;
-            lightPositions[0].x = winSize.x * 0.4f; // moon
-            lightPositions[1].x = winSize.x * 0.4f; // moon
 
             // 300 => new_y //  res_y => new_res
             // 300/scaled_y = RESOLUTION_Y / winSize.y
 
-
-            float y_scale_factor = winSize.y / RESOLUTION_Y;
-
-            lightPositions[0].y = (400 - sky_position_y) * y_scale_factor; // moon
-            lightPositions[1].y = (-500.0f - sky_position_y) * y_scale_factor; // sun
+            float x_scale_factor = winSize.x / (float)(RESOLUTION_X + 200);
+            float y_scale_factor = winSize.y / (float)RESOLUTION_Y;
             
+            lightPositions[0].x = 400.f * x_scale_factor; // moon
+            lightPositions[1].x = 400.f * x_scale_factor; // moon
+            lightPositions[2].x = 400.f * x_scale_factor; // moon
+
+            lightPositions[0].y = (300 + sky_position_y) * y_scale_factor; // moon
+            lightPositions[1].y = (1200.0f + sky_position_y) * y_scale_factor; // sun
+            lightPositions[2].y = (2100.0f + sky_position_y) * y_scale_factor; // sun
+            lightPositions[3].y = (300.0f + sky_position_y) * y_scale_factor; // sun
+            lightPositions[4].y = (533.0f + sky_position_y) * y_scale_factor; // sun
+            
+            multiLightShader.setUniform("screen_resolution", sf::Vector2f(winSize.x, winSize.y));
             
 
 
             // std::cout << "y: " << -sky_position_y << "Moon: " << lightPositions[0].y << " Sun:" << lightPositions[1].y << std::endl;
 
             float ambient_strength = sunlightIntensity(-sky_position_y);
-            std::cout << "-sky_position_y: " << -sky_position_y << "scaled_y: " << y_scale_factor << std::endl;
+            //std::cout << "-sky_position_y: " << -sky_position_y << "scaled_y: " << y_scale_factor << std::endl;
             multiLightShader.setUniform("ambientStrength", ambient_strength); // Tweak to taste
+
+            
+            sf::Texture occlusion_texture = computeOcclusionTexture(back_background_shape, window);
+
+            // Draw the occlusion mask as a semi-transparent rectangle
+            sf::RectangleShape maskShape(sf::Vector2f(occlusion_texture.getSize().x, occlusion_texture.getSize().y));
+
+            maskShape.setPosition(sf::Vector2f(0.f, 0.f));
+            maskShape.setTexture(&occlusion_texture);
+            // window.draw(maskShape);
 
             // Now update the shader with these dynamic values:
             multiLightShader.setUniformArray("lightPos", &lightPositions[0], numLights);
             multiLightShader.setUniformArray("lightRadius", &lightRadii[0], numLights);
+            multiLightShader.setUniformArray("lightShapeRadius", &lightShapeRadius[0], numLights);
+            multiLightShader.setUniformArray("attenuation_factor", &attenuation_factor[0], numLights);
             multiLightShader.setUniformArray("lightColor", &lightColors[0], numLights);
+            multiLightShader.setUniform("occlusionTexture", occlusion_texture);
+            multiLightShader.setUniform("flareIntensity", 0.15f); // Adjust as needed;
+
+            window.draw(sky_shape, &multiLightShader);
+            window.draw(back_background_shape, &multiLightShader);
+            window.draw(front_background_shape, &multiLightShader);
 
 
             // if the game is updating and have at least one bird alive:
@@ -459,6 +528,8 @@ namespace FlappyBirdInterce {
                 osstr << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfitness: " << fitness;
                 generation_text.setString(osstr.str()); // set text string.
                 window.draw(generation_text);
+
+                
 
                 ///////////////////////////////////////////////////////////////////////
                 // Display the window.
