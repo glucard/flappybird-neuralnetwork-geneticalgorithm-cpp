@@ -17,7 +17,7 @@ double sunlightIntensity(double x) {
     return f > 0.f ? f*2 : 0.f;
 }
 
-sf::Texture computeOcclusionTexture(const sf::RectangleShape& shape, const sf::RenderWindow& window)
+sf::Texture computeOcclusionTexture(std::vector<sf::RectangleShape*> shapes, const sf::RenderWindow& window)
 {
     // Get window size
     sf::Vector2u windowSize = window.getSize();
@@ -32,7 +32,9 @@ sf::Texture computeOcclusionTexture(const sf::RectangleShape& shape, const sf::R
     renderTexture.setView(window.getView());
     
     // Draw the shape onto the off-screen render texture
-    renderTexture.draw(shape);
+    for (auto& shape : shapes){
+        renderTexture.draw(*shape);
+    }
     renderTexture.display();
     
     // Extract the texture from the render texture.
@@ -358,6 +360,15 @@ namespace FlappyBirdInterce {
             // clear the window.
             window.clear();
 
+            // Get window size
+            sf::Vector2u windowSize = window.getSize();
+            // Create an off-screen render texture with the same dimensions as the window
+            sf::RenderTexture renderOcclusionTexture(sf::Vector2u(windowSize.x, windowSize.y));
+            // Clear with transparent color so areas with no shape remain transparent
+            renderOcclusionTexture.clear(sf::Color::Transparent);
+            // Set the view to match the window so the shape is drawn in the correct coordinates
+            renderOcclusionTexture.setView(window.getView());
+
             sky_position_y -= 0.1;
             if (sky_position_y < -RESOLUTION_Y * 3) sky_position_y = 0;
             sky_shape.setPosition(sf::Vector2f(0, sky_position_y));
@@ -402,8 +413,12 @@ namespace FlappyBirdInterce {
             //std::cout << "-sky_position_y: " << -sky_position_y << "scaled_y: " << y_scale_factor << std::endl;
             multiLightShader.setUniform("ambientStrength", ambient_strength); // Tweak to taste
 
-            
-            sf::Texture occlusion_texture = computeOcclusionTexture(back_background_shape, window);
+            // std::vector<sf::RectangleShape*> occlusion_shapes;
+            // occlusion_shapes.push_back(&back_background_shape);
+            // sf::Texture occlusion_texture = computeOcclusionTexture(occlusion_shapes, window);
+            renderOcclusionTexture.draw(back_background_shape);
+            renderOcclusionTexture.display();
+            sf::Texture occlusion_texture = renderOcclusionTexture.getTexture();
 
             // Draw the occlusion mask as a semi-transparent rectangle
             sf::RectangleShape maskShape(sf::Vector2f(occlusion_texture.getSize().x, occlusion_texture.getSize().y));
@@ -439,9 +454,26 @@ namespace FlappyBirdInterce {
                     tunnel_entrace_shape.setSize(sf::Vector2f(i_tunnel->getWidth(), i_tunnel->entrance.height));
 
                     // Draw the shapes.
-                    //window.draw(tunnel_shape);
+                    // //window.draw(tunnel_shape);
+                    // window.draw(tunnel_shape, &multiLightShader);
+                    // window.draw(tunnel_entrace_shape);
+                    // occlusion_shapes.push_back(&tunnel_shape);
+                    //renderOcclusionTexture.draw(tunnel_shape);
+                }
+                
+                // sf::Texture tunnel_occlusion_texture = computeOcclusionTexture(occlusion_shapes, window);
+                renderOcclusionTexture.display();
+                sf::Texture tunnel_occlusion_texture = renderOcclusionTexture.getTexture();
+                multiLightShader.setUniform("occlusionTexture", tunnel_occlusion_texture);
+                
+                for (i_tunnel = game.tunnel_list.begin(); i_tunnel != game.tunnel_list.end(); ++i_tunnel) {
+                    
+                    // Set shape pos.
+                    tunnel_shape.setPosition(sf::Vector2f(i_tunnel->position.getX(), i_tunnel->position.getY()));
+                    tunnel_entrace_shape.setPosition(sf::Vector2f(i_tunnel->position.getX(), RESOLUTION_Y - i_tunnel->entrance.y - i_tunnel->entrance.height));
+                    tunnel_entrace_shape.setSize(sf::Vector2f(i_tunnel->getWidth(), i_tunnel->entrance.height));
                     window.draw(tunnel_shape, &multiLightShader);
-                    window.draw(tunnel_entrace_shape);
+                    window.draw(tunnel_entrace_shape, &multiLightShader);
                 }
 
                 Array::Array2D a(FLOAT_TYPE, 0, 0, NULL);

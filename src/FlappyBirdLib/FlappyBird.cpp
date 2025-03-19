@@ -255,12 +255,12 @@ int FlappyBird::isOnTunnel(Bird bird) {
 	return 0;
 }
 Array::Array2D FlappyBird::getIaInput(Bird bird) {
-	int input_length = 3;
+	int input_length = 2;
 	float** data = (float**)malloc(sizeof(float*));
 	data[0] = (float*)malloc(input_length * sizeof(float));
 	data[0][0] = bird.velocity.getY()/10.f;
 	data[0][1] = bird.position.getY() - (next_bird_tunnel)->entrance.y - bird.getRadius() / 800.f;
-	data[0][2] = (next_bird_tunnel)->position.getX() / 800.f;
+	// data[0][2] = (next_bird_tunnel)->position.getX() / 800.f;
 	//data[0][3] = current_frame/(float)10000;
 	return Array::Array2D(FLOAT_TYPE, 1, input_length, data);
 }

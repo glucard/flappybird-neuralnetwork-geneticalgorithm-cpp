@@ -6,7 +6,7 @@
 #define FITNESS_LIMIT 25000
 
 void* createIndividual() {
-	int input_shape[2] = { 1,3 };
+	int input_shape[2] = { 1,2 };
 	NeuralNetwork::NeuralNetwork* nn = new NeuralNetwork::NeuralNetwork(input_shape);
 	nn->addLayerDense(5, ActivationFunction::ReLU);
 	nn->addLayerDense(5, ActivationFunction::ReLU);

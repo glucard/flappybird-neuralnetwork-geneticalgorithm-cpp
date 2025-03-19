@@ -104,7 +104,7 @@ void main()
         vec2 dirToLight = normalize(toLightVec);
         float streak = pow(abs(dot(dirToLight, vec2(0.707, 0.707))), 8.0) * 
                      (1.0 - smoothstep(0.0, lightRadius[i] * 1.5, distToLight));
-        vec3 streakColor = lightColor[i] * streak * 0.2 * flareIntensity;
+        vec3 streakColor = lightColor[i] * streak * 2.f * flareIntensity;
         
         // 3. Halo Sutil (Efeito de Difração)
         float halo = (sin(distToLight * 0.5) * 0.5 + 0.5) * 
@@ -116,7 +116,10 @@ void main()
         vec3 lightFlare = (glowColor + streakColor + haloColor) * 
                          flareAttenuation * visibleFraction * attenuation_factor[i];
         
-        totalFlare += lightFlare;
+
+        vec2 sampleCoord = lightPos[i] / screen_resolution;
+        if (texture2D(occlusionTexture, sampleCoord).a < 0.1)
+            totalFlare += lightFlare;
     }
     
     // [Técnica: Screen Blending (Porter-Duff)]
